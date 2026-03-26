@@ -1,7 +1,7 @@
-import streamlit as st 
+import streamlit as st
 import requests
 
-API_URL = "http://127.0.0.1:8001/predict"
+API_URL = "https://insurense-premium-backend.onrender.com/predict"
 
 st.title("Insurance Premium Category Predictor")
 st.markdown("Enter your details below:")
@@ -30,15 +30,17 @@ if st.button("Predict Premium Category"):
     }
 
     try:
-        response = requests.post(API_URL, json=input_data)
+        response = requests.post(API_URL, json=input_data, timeout=60)
         result = response.json()
 
         if response.status_code == 200:
             prediction = result["predicted_category"]
-            st.success(f"Predicted Insurance Premium Category: **{prediction}**")
+            st.success(f"Predicted Insurance Premium Category: {prediction}")
         else:
-            st.error(f"API Error: {response.status_code}")
-            st.write(result)
+            st.error(f"API Error: {result}")
+
+    except requests.exceptions.Timeout:
+        st.error("⏳ Server is waking up... click again in 30 seconds")
 
     except requests.exceptions.ConnectionError:
-        st.error("❌ Could not connect to the FastAPI server. Make sure it's running.")
+        st.error("❌ Cannot connect to backend")
